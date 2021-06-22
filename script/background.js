@@ -1,109 +1,65 @@
-const settingsStorage = new UserSettingsStorage();
-let timer = new StudyTimer(TimerFormat.textToMilliseconds(settingsStorage.settings.studytime), 0);
-const badge = new Badge(timer.badgeColor);
+state.timerInfo = task.create(settings);
+badge.update({ color: state.timerInfo.badge.color });
 
 chrome.runtime.onConnect.addListener((connection) => {
-
 	const sendMessageToPopup = (message) => {
-
 		try {
-
 			connection.postMessage({
 				"timer": message
 			});
-
 		} catch (error) {}
-
 	}
 
 	const dueTimeVerifier = (value) => {
-
 		if (value <= 0) {
+			let newTimer = controller.change(state.timerInfo, state.pomodoros, settings.get());
+			state.pomodoros = newTimer.pomodoros;
+			state.timerInfo = newTimer.timerInfo;
+			state.timerInfo.timer.play();
 
-			timer = timer.change(settingsStorage.settings);
-
-			badge.updateColor(timer.badgeColor);
-
-			timer.showNotification();
-
-			timer.play();
-
+			notification.show({ title: state.timerInfo.type, ...state.timerInfo.notification });
+			badge.update({ color: state.timerInfo.badge.color });
 		}
 
 		if (value > 0) {
-
-			badge.updateText(TimerFormat.millisecondsToMinutes(value).toString());
-
+			badge.update({ text: TimerFormat.millisecondsToMinutes(value) });
 		}
 	}
 
 	const update = () => {
+		const x = state.timerInfo;
 
-		if (timer.playing) {
-
-			dueTimeVerifier(timer.update());
-
+		if (x.timer.playing) {
+			dueTimeVerifier(x.update());
 		}
 
 		sendMessageToPopup({
-
-			playing: timer.playing,
-			completedPomodoros: timer.completedPomodoros,
-			type: timer.type,
-			time: TimerFormat.millisecondsToText(timer.time)
-
+			playing: x.timer.playing,
+			completedPomodoros: state.pomodoros,
+			type: x.type,
+			time: TimerFormat.millisecondsToText(x.timer.remain)
 		});
-
 	}
 
 	connection.onMessage.addListener((message) => {
-
 		if (!message.action) return;
 
-		const commands = {
+		const x = state.timerInfo;
 
-			play() {
-
-				timer.play();
-
-			},
-
-			pause() {
-
-				timer.pause();
-
-			},
-
-			reset() {
-
-				timer = new StudyTimer(TimerFormat.textToMilliseconds(settingsStorage.settings.studytime), 0);
-				badge.updateText("");
-				badge.updateColor(timer.badgeColor);
-
-			},
-
-			init() {
-
-				update();
-
-				setInterval(() => {
-
-					update();
-
-				}, 200);
-
-			}
-
+		switch (message.action) {
+			case "play":
+				x.timer.play();
+				break;
+			case "pause":
+				x.timer.pause();
+				break;
+			case "reset":
+				state.timerInfo = task.create(settings);
+				badge.update({ color: state.timerInfo.badge.color });
+				break;
+			case "init":
+				x.timer.play();
+				break;
 		}
-
-		const executeCommand = commands[message.action];
-
-		if (executeCommand) {
-
-			executeCommand();
-
-		}
-
 	});
-
 })
