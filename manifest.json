@@ -10,15 +10,14 @@
 	"background": 
 	{
 		"scripts": [ 
-			"model/settings/userSettings.js", 
-			"model/settings/userSettingsStorage.js", 
-			"model/badge.js", 
-			"model/notification.js", 
 			"model/timerFormat.js", 
-			"model/timers/timer.js", 
-			"model/timers/studyTimer.js", 
-			"model/timers/shortBreakTimer.js", 
-			"model/timers/longBreakTimer.js", 
+			"script/state.js",
+			"script/sound.js",
+			"script/settings.js",
+			"script/badge.js",
+			"script/notification.js",
+			"script/timer.js",
+			"script/controller.js",
 			"script/background.js"
 		]
 	},

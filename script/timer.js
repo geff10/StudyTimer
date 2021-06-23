@@ -1,38 +1,42 @@
 const timer = {
-    create = (time) => {
-        remain = new TimerFormat().textToMilliseconds(time);
-        end = new Date().getTime() + remain;
-        playing = false;
+    remain: '',
+    end: '',
+    playing: '',
+    
+    create: function(time) {
+        this.remain = TimerFormat.textToMilliseconds(time) + 999; // Add one second to avoid "flickering" on start
+        this.end = new Date().getTime() + this.remain;
+        this.playing = false;
     },
 
-    play = () => {
-        playing = true;
-		end = new Date().getTime() + remain;
+    play: function() {
+        this.playing = true;
+		this.end = new Date().getTime() + this.remain;
     },
 
-    pause = () => {
-        playing = false;
+    pause: function() {
+        this.playing = false;
     },
 
-    update = () => {
-        if (playing) {
+    update: function() {
+        if (this.playing) {
 			const now = new Date().getTime();
 
-			if (now <= end) {
-				remain = end - now;
+			if (now <= this.end) {
+				this.remain = this.end - now;
 			} else {
-				remain = 0;
+				this.remain = 0;
 			}
 		}
 
-		return remain;
+		return this.remain;
     }
 }
 
 const task = {
-    create = (settings) => {
+    create: (settings) => {
         timer.create(settings.task);
-
+        
         return {
             type: "Task",
             badge: {
@@ -48,7 +52,7 @@ const task = {
 }
 
 const shortbreak = {
-    create = (settings) => {
+    create: (settings) => {
         timer.create(settings.shortbreak);
 
         return {
@@ -66,7 +70,7 @@ const shortbreak = {
 }
 
 const longbreak = {
-    create = (settings) => {
+    create: (settings) => {
         timer.create(settings.longbreak);
 
         return {

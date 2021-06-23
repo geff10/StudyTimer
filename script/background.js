@@ -1,4 +1,4 @@
-state.timerInfo = task.create(settings);
+state.timerInfo = task.create(settings.get());
 badge.update({ color: state.timerInfo.badge.color });
 
 chrome.runtime.onConnect.addListener((connection) => {
@@ -22,7 +22,7 @@ chrome.runtime.onConnect.addListener((connection) => {
 		}
 
 		if (value > 0) {
-			badge.update({ text: TimerFormat.millisecondsToMinutes(value) });
+			badge.update({ text: `${TimerFormat.millisecondsToMinutes(value - 999)}` });  // Remove the extra second
 		}
 	}
 
@@ -30,7 +30,7 @@ chrome.runtime.onConnect.addListener((connection) => {
 		const x = state.timerInfo;
 
 		if (x.timer.playing) {
-			dueTimeVerifier(x.update());
+			dueTimeVerifier(x.timer.update());
 		}
 
 		sendMessageToPopup({
@@ -54,11 +54,13 @@ chrome.runtime.onConnect.addListener((connection) => {
 				x.timer.pause();
 				break;
 			case "reset":
-				state.timerInfo = task.create(settings);
+				state.timerInfo = task.create(settings.get());
+				state.pomodoros = 0;
 				badge.update({ color: state.timerInfo.badge.color });
 				break;
 			case "init":
-				x.timer.play();
+				update();
+				setInterval(() => { update() }, 200);
 				break;
 		}
 	});

@@ -1,14 +1,14 @@
 const badge = {
-    update = (values) => {
+    update: (values) => {
         if (values.color) {
             chrome.browserAction.setBadgeBackgroundColor({
-                color: value
+                color: values.color
             });
         }
         
         if (values.text) {
             chrome.browserAction.setBadgeText({
-                text: value
+                text: values.text
             });
         }
     }

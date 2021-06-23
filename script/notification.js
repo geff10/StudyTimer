@@ -1,5 +1,5 @@
 const notification = {
-    show = (values) => {
+    show: (values) => {
         if (values.title && values.message && values.image) {
             chrome.notifications.create({
                 "type": "basic",
@@ -7,6 +7,8 @@ const notification = {
                 "title": values.title,
                 "message": values.message
             });
+            
+            sound.play();
         }
     }
 }
