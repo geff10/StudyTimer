@@ -10,7 +10,7 @@
 	"background": 
 	{
 		"scripts": [ 
-			"model/timerFormat.js", 
+			"script/timerFormat.js", 
 			"script/state.js",
 			"script/sound.js",
 			"script/settings.js",

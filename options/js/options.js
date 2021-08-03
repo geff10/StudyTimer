@@ -2,8 +2,6 @@ const connection = chrome.runtime.connect({
 	name: "background-settings"
 });
 
-const settingStorage = new UserSettingsStorage();
-
 const minutesInputs = Array.from(document.getElementsByClassName("minutes"));
 const secondsInputs = Array.from(document.getElementsByClassName("seconds"));
 const pomodorosInput = document.getElementById("numberPomodoros");
@@ -64,15 +62,15 @@ const addValidationListeners = () => {
 
 	saveButton.addEventListener("click", () => {
 
-		const study = TimerFormat.minutesAndSecondsToText(studyClockLine.getElementsByClassName("minutes")[0].value, studyClockLine.getElementsByClassName("seconds")[0].value);
-		const shortBreak = TimerFormat.minutesAndSecondsToText(shortBreakClockLine.getElementsByClassName("minutes")[0].value, shortBreakClockLine.getElementsByClassName("seconds")[0].value);
-		const longBreak = TimerFormat.minutesAndSecondsToText(longBreakClockLine.getElementsByClassName("minutes")[0].value, longBreakClockLine.getElementsByClassName("seconds")[0].value);
+		const values = {
+			task: TimerFormat.minutesAndSecondsToText(studyClockLine.getElementsByClassName("minutes")[0].value, studyClockLine.getElementsByClassName("seconds")[0].value),
+			shortbreak: TimerFormat.minutesAndSecondsToText(shortBreakClockLine.getElementsByClassName("minutes")[0].value, shortBreakClockLine.getElementsByClassName("seconds")[0].value),
+			longbreak: TimerFormat.minutesAndSecondsToText(longBreakClockLine.getElementsByClassName("minutes")[0].value, longBreakClockLine.getElementsByClassName("seconds")[0].value),
+			pomodoros: pomodorosInput.value,
+			soundEnabled: document.getElementById("sound").checked
+		}
 
-		const pomodoros = pomodorosInput.value;
-
-		const soundEnabled = document.getElementById("sound").checked;
-
-		settingStorage.settings = new UserSettings(pomodoros, study, shortBreak, longBreak, soundEnabled);
+		settings.set(values);
 
 		updateInputsWithSettingsContent();
 
@@ -82,7 +80,7 @@ const addValidationListeners = () => {
 
 	resetButton.addEventListener("click", () => {
 
-		settingStorage.settings = new UserSettings(4, "25:00", "05:00", "30:00", true);
+		settings.set({ pomodoros: 4, task: "25:00", shortbreak: "05:00", longbreak: "30:00", soundEnabled: true });
 
 		updateInputsWithSettingsContent();
 
@@ -94,11 +92,13 @@ const addValidationListeners = () => {
 
 const updateInputsWithSettingsContent = () => {
 
-	InterfaceService.updateClockLine(studyClockLine, settingStorage.settings.studytime);
-	InterfaceService.updateClockLine(shortBreakClockLine, settingStorage.settings.shortbreak);
-	InterfaceService.updateClockLine(longBreakClockLine, settingStorage.settings.longbreak);
-	InterfaceService.updatePomodorosValue(settingStorage.settings.pomodoros);
-	InterfaceService.updateNotificationSoundOption(settingStorage.settings.soundEnabled);
+	const values = settings.get();
+
+	InterfaceService.updateClockLine(studyClockLine, values.task);
+	InterfaceService.updateClockLine(shortBreakClockLine, values.shortbreak);
+	InterfaceService.updateClockLine(longBreakClockLine, values.longbreak);
+	InterfaceService.updatePomodorosValue(values.pomodoros);
+	InterfaceService.updateNotificationSoundOption(values.soundEnabled);
 
 }
 

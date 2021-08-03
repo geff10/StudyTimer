@@ -8,6 +8,7 @@ const notification = {
                 "message": values.message
             });
             
+            // TODO: Only play sound when option is enabled on settings
             sound.play();
         }
     }
