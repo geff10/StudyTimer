@@ -17,7 +17,7 @@ class InterfaceService {
 
     static updateNotificationSoundOption(value) {
 
-        document.getElementById("sound").checked = value == "true";
+        document.getElementById("sound").checked = value;
 
     }
 

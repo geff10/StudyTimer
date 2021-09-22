@@ -4,13 +4,13 @@ const controller = {
             case "Task":
                 pomodoros++;
                 if (pomodoros >= settings.pomodoros) {
-                    return { timerInfo: longbreak.create(settings), pomodoros }
+                    return { newTimer: longbreak.create(settings), pomodoros }
                 }
-                return { timerInfo: shortbreak.create(settings), pomodoros }
+                return { newTimer: shortbreak.create(settings), pomodoros }
             case "Short Break":
-                return { timerInfo: task.create(settings), pomodoros }
+                return { newTimer: task.create(settings), pomodoros }
             case "Long Break":
-                return { timerInfo: task.create(settings), pomodoros: 0 }
+                return { newTimer: task.create(settings), pomodoros: 0 }
         }
     }
 }

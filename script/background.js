@@ -1,5 +1,14 @@
-state.timerInfo = task.create(settings.get());
-badge.update({ color: state.timerInfo.badge.color });
+// To Do: Fix sound alert config
+const settingsData = settings.get();
+let currentTimer, pomodoros;
+
+const init = () => {
+	currentTimer = task.create(settingsData);
+	pomodoros = 0;
+	badge.update({ color: currentTimer.badge.color });
+}
+
+init();
 
 chrome.runtime.onConnect.addListener((connection) => {
 	const sendMessageToPopup = (message) => {
@@ -12,13 +21,13 @@ chrome.runtime.onConnect.addListener((connection) => {
 
 	const dueTimeVerifier = (value) => {
 		if (value <= 0) {
-			let newTimer = controller.change(state.timerInfo, state.pomodoros, settings.get());
-			state.pomodoros = newTimer.pomodoros;
-			state.timerInfo = newTimer.timerInfo;
-			state.timerInfo.timer.play();
+			let values = controller.change(currentTimer, pomodoros, settingsData);
+			pomodoros = values.pomodoros;
+			currentTimer = values.newTimer;
 
-			notification.show({ title: state.timerInfo.type, ...state.timerInfo.notification });
-			badge.update({ color: state.timerInfo.badge.color });
+			currentTimer.timer.play();
+			notification.show(currentTimer.type, currentTimer.notification.message, currentTimer.notification.image, settingsData.soundEnabled);
+			badge.update({ color: currentTimer.badge.color });
 		}
 
 		if (value > 0) {
@@ -27,7 +36,7 @@ chrome.runtime.onConnect.addListener((connection) => {
 	}
 
 	const update = () => {
-		const x = state.timerInfo;
+		const x = currentTimer;
 
 		if (x.timer.playing) {
 			dueTimeVerifier(x.timer.update());
@@ -35,7 +44,7 @@ chrome.runtime.onConnect.addListener((connection) => {
 
 		sendMessageToPopup({
 			playing: x.timer.playing,
-			completedPomodoros: state.pomodoros,
+			completedPomodoros: pomodoros,
 			type: x.type,
 			time: TimerFormat.millisecondsToText(x.timer.remain)
 		});
@@ -44,7 +53,7 @@ chrome.runtime.onConnect.addListener((connection) => {
 	connection.onMessage.addListener((message) => {
 		if (!message.action) return;
 
-		const x = state.timerInfo;
+		const x = currentTimer;
 
 		switch (message.action) {
 			case "play":
@@ -54,9 +63,7 @@ chrome.runtime.onConnect.addListener((connection) => {
 				x.timer.pause();
 				break;
 			case "reset":
-				state.timerInfo = task.create(settings.get());
-				state.pomodoros = 0;
-				badge.update({ color: state.timerInfo.badge.color });
+				init();
 				break;
 			case "init":
 				update();
@@ -64,4 +71,4 @@ chrome.runtime.onConnect.addListener((connection) => {
 				break;
 		}
 	});
-})
+});

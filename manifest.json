@@ -10,8 +10,7 @@
 	"background": 
 	{
 		"scripts": [ 
-			"script/timerFormat.js", 
-			"script/state.js",
+			"script/timerFormat.js",
 			"script/sound.js",
 			"script/settings.js",
 			"script/badge.js",
